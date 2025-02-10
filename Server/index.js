@@ -8,7 +8,7 @@ const dotenv = require("dotenv");
 dotenv.config();
 const app = express();
 const corsOptions = {
-  origin: process.env.FRONTEND_URL || "http://localhost:5173",
+  origin: process.env.FRONTEND_URL || "http://localhost:5174",
   credentials: true, // Allow cookies & authentication headers
   methods: "GET,POST,PUT,DELETE,OPTIONS", // Allowed HTTP methods
   allowedHeaders:
@@ -32,7 +32,7 @@ app.post("/api/login", (req, res) => {
   const { username, password } = req.body;
   console.log(req.body);
 
-  if (username === "admin" && password === "secret") {
+  if (username === "shilpa.p" && password === "kalpan@123") {
     res.json({ success: true, message: "Login successful" });
   } else {
     res.json({ success: false, message: "Invalid username or password" });
