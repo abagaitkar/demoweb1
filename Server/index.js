@@ -602,6 +602,10 @@ app.post("/api/generate_code/:quotationId", async (req, res) => {
     if (!price) price = 1000;
     const totalPrice = price * quantity;
 
+    let randLetter =
+      String.fromCharCode(65 + Math.floor(Math.random() * 26)) +
+      String.fromCharCode(65 + Math.floor(Math.random() * 26));
+
     // Insert into QuotationDetails
     const insertQuotationDetails = async () => {
       return new Promise((resolve, reject) => {
@@ -610,7 +614,7 @@ app.post("/api/generate_code/:quotationId", async (req, res) => {
                      VALUES (?, ?, ?, ?, ?, ?)`,
           [
             quotationId,
-            finalCode,
+            finalCode + randLetter,
             quantity,
             price,
             totalPrice,
@@ -628,7 +632,7 @@ app.post("/api/generate_code/:quotationId", async (req, res) => {
 
     res.json({
       message: "Code generated successfully",
-      FGCode: finalCode,
+      FGCode: finalCode + randLetter,
       UnitPrice: price,
       TotalPrice: totalPrice,
     });
