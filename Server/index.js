@@ -8,7 +8,7 @@ const dotenv = require("dotenv");
 dotenv.config();
 const app = express();
 const corsOptions = {
-  origin: process.env.FRONTEND_URL || "http://localhost:5174",
+  origin: process.env.FRONTEND_URL || "http://localhost:5173",
   credentials: true, // Allow cookies & authentication headers
   methods: "GET,POST,PUT,DELETE,OPTIONS", // Allowed HTTP methods
   allowedHeaders:
@@ -716,6 +716,133 @@ app.delete("/api/quotation/:id", (req, res) => {
       );
     }
   );
+});
+
+db.run(`
+  CREATE TABLE IF NOT EXISTS Quotation_Notes_Conditions (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    technicalNotes TEXT,
+    priceBasis TEXT,
+    gstNo TEXT,
+    packing TEXT,
+    forwarding TEXT,
+    freightCharges TEXT,
+    cddSchedule TEXT,
+    payment TEXT,
+    commercialTerms TEXT
+    quotationRef TEXT
+  )
+`);
+
+db.run(`
+  CREATE TABLE IF NOT EXISTS setValvsDescriptions (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    TYPEOFVALVE TEXT,
+    SIZE TEXT,
+    CLASS TEXT,
+    END TEXT,
+    BODYMOC TEXT,
+    Trim TEXT,
+    SEATINSERT TEXT,
+    BODYSEAL_GLANDPACKING TEXT,
+    FASTENERS TEXT,
+    OPERATION TEXT,
+    SPECIALREQUIREMENT TEXT,
+    quotationRef TEXT
+  )
+`);
+
+// API to Save Quotation
+app.post("/api/save-quotation", (req, res) => {
+  const {
+    technicalNotes,
+    priceBasis,
+    gstNo,
+    packing,
+    forwarding,
+    freightCharges,
+    cddSchedule,
+    payment,
+    commercialTerms,
+    quotationRef,
+  } = req.body;
+
+  console.log(req.body);
+
+  db.run(
+    `INSERT INTO Quotation_Notes_Conditions 
+    (technicalNotes, priceBasis, gstNo, packing, forwarding, freightCharges, cddSchedule, payment, commercialTerms,quotationRef) 
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    [
+      technicalNotes,
+      priceBasis,
+      gstNo,
+      packing,
+      forwarding,
+      freightCharges,
+      cddSchedule,
+      payment,
+      commercialTerms, // Ensure this is included
+      quotationRef,
+    ],
+    function (err) {
+      if (err) return res.status(500).json({ error: err.message });
+      res.json({ message: "Quotation saved", id: this.lastID });
+    }
+  );
+});
+
+// This is post by Valves Description
+app.post("/api/save-descriptions", (req, res) => {
+  console.log("This is body", req.body);
+  const {
+    TYPEOFVALVE,
+    SIZE,
+    CLASS,
+    END,
+    BODYMOC,
+    Trim,
+    SEATINSERT,
+    BODYSEAL_GLANDPACKING,
+    FASTENERS,
+    OPERATION,
+    SPECIALREQUIREMENT,
+    quotationRef,
+  } = req.body;
+
+  console.log(req.body);
+
+  db.run(
+    `INSERT INTO setValvsDescriptions 
+    (TYPEOFVALVE, SIZE, CLASS, END, BODYMOC, Trim, SEATINSERT, BODYSEAL_GLANDPACKING, FASTENERS,OPERATION,SPECIALREQUIREMENT,quotationRef) 
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    [
+      TYPEOFVALVE,
+      SIZE,
+      CLASS,
+      END,
+      BODYMOC,
+      Trim,
+      SEATINSERT,
+      BODYSEAL_GLANDPACKING,
+      FASTENERS, // Ensure this is included
+      OPERATION,
+      SPECIALREQUIREMENT,
+      quotationRef,
+    ],
+    function (err) {
+      if (err) return res.status(500).json({ error: err.message });
+      res.json({ message: "Description saved", id: this.lastID });
+    }
+  );
+});
+
+// API to Retrieve Last Saved Quotation
+app.get("/api/get-latest-quotation", (req, res) => {
+  db.all(`SELECT * FROM Quotation_Notes_Conditions`, [], (err, rows) => {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json(rows);
+  });
 });
 
 // Start the server

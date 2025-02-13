@@ -7,6 +7,7 @@ import GeneratePDF from "../GeneratePDF/GeneratePDF";
 const ViewQuotation = ({ onSubmit }) => {
   const [quotations, setQuotations] = useState([]);
   const [quotationDetails, setQuotationDetails] = useState([]);
+  const [notesTerms, setNotesTerms] = useState([]);
   const [mergedData, setMergedData] = useState([]);
   const [filters, setFilters] = useState({
     QuotationRef: "",
@@ -45,6 +46,23 @@ const ViewQuotation = ({ onSubmit }) => {
     )
       .then((res) => res.json())
       .then((data) => setQuotationDetails(data || []))
+      .catch((error) =>
+        console.error("Error fetching quotation details:", error)
+      );
+  }, []);
+
+  useEffect(() => {
+    fetch(
+      `${
+        import.meta.env.VITE_APP_BASE_URL_PRODUCTION
+      }/api/get-latest-quotation`,
+      {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      }
+    )
+      .then((res) => res.json())
+      .then((data) => setNotesTerms(data || []))
       .catch((error) =>
         console.error("Error fetching quotation details:", error)
       );
@@ -115,9 +133,10 @@ const ViewQuotation = ({ onSubmit }) => {
 
   // Download PDF
 
-  const downloadPDF = (quotationData) => {
+  const downloadPDF = (quotationData, notesTerms) => {
     const quotation = JSON.parse(quotationData);
-    GeneratePDF(quotation);
+    const notes = JSON.parse(notesTerms);
+    GeneratePDF(quotation, notes);
   };
 
   return (
@@ -291,7 +310,10 @@ const ViewQuotation = ({ onSubmit }) => {
                               <button
                                 className="btn btn-info text-light"
                                 onClick={() =>
-                                  downloadPDF(JSON.stringify(quotation))
+                                  downloadPDF(
+                                    JSON.stringify(quotation),
+                                    JSON.stringify(notesTerms)
+                                  )
                                 }
                               >
                                 PDF
@@ -328,7 +350,12 @@ const ViewQuotation = ({ onSubmit }) => {
                       <td>
                         <button
                           className="btn btn-info text-light"
-                          onClick={() => downloadPDF(JSON.stringify(quotation))}
+                          onClick={() =>
+                            downloadPDF(
+                              JSON.stringify(quotation),
+                              JSON.stringify(notesTerms)
+                            )
+                          }
                         >
                           PDF
                         </button>

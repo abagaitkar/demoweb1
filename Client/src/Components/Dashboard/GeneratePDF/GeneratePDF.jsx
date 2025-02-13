@@ -1,8 +1,9 @@
 import jsPDF from "jspdf";
 import "jspdf-autotable";
 
-const GeneratePDF = (quotation) => {
+const GeneratePDF = (quotation, notes) => {
   const doc = new jsPDF("l", "mm", "a4"); // Landscape format
+  console.log(quotation);
 
   // **Header Section**
   doc.setFont("helvetica", "bold");
